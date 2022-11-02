@@ -70,7 +70,7 @@ public class Manager {
     public Integer addNewEpic(Epic epic) {
         epic.setId(generateId());
         epics.put(epic.getId(), epic);
-        synchronizeEpic(epic.getId());
+        updateEpicStatus(epic.getId());
         return epic.getId();
     }
 
@@ -82,7 +82,7 @@ public class Manager {
 
     public void updateEpic(Epic epic) {
         epics.put(epic.getId(), epic);
-        synchronizeEpic(epic.getId());
+        updateEpicStatus(epic.getId());
     }
 
     public void updateTask(Task task) {
@@ -91,7 +91,7 @@ public class Manager {
 
     public void updateSubtask(Subtask subtask) {
         subtasks.put(subtask.getId(), subtask);
-        synchronizeEpic(subtask.getEpicId());
+        updateEpicStatus(subtask.getEpicId());
     }
 
     public void deleteEpicById(Integer id) {
@@ -129,7 +129,7 @@ public class Manager {
         return subtasksOfEpic;
     }
 
-    private void synchronizeEpic(Integer epicId) {
+    private void updateEpicStatus(Integer epicId) {
         Epic epic = epics.get(epicId);
         List<Integer> subtasksOfEpic = epic.getSubtasksId();
         boolean statusIsDone = true;
