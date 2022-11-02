@@ -1,3 +1,5 @@
+package ru.yandex.practicum.tasktracker.tasks;
+
 import java.util.Objects;
 
 public class Subtask extends Task {
@@ -31,7 +33,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask{" +
+        return "ru.yandex.practicum.tasktracker.java.tasks.Subtask{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +

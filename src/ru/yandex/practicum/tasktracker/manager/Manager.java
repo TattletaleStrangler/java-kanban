@@ -1,3 +1,7 @@
+package ru.yandex.practicum.tasktracker.manager;
+
+import ru.yandex.practicum.tasktracker.tasks.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

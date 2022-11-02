@@ -1,3 +1,8 @@
+package ru.yandex.practicum.tasktracker;
+
+import ru.yandex.practicum.tasktracker.manager.Manager;
+import ru.yandex.practicum.tasktracker.tasks.*;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -70,6 +75,5 @@ public class Main {
         System.out.println(manager.getTaskById(6));
         manager.addNewTask(task1);
         System.out.println(task1);
-
     }
 }
