@@ -1,6 +1,7 @@
-package ru.yandex.practicum.tasktracker.managers.task_managers;
+package ru.yandex.practicum.tasktracker.managers.taskmanagers;
 
-import ru.yandex.practicum.tasktracker.managers.history_managers.HistoryManager;
+import ru.yandex.practicum.tasktracker.managers.Managers;
+import ru.yandex.practicum.tasktracker.managers.historymanagers.HistoryManager;
 import ru.yandex.practicum.tasktracker.tasks.*;
 
 import java.util.ArrayList;
@@ -9,18 +10,17 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private Integer nextId;
     private final Map<Integer, Task> tasks;
     private final Map<Integer, Epic> epics;
     private final Map<Integer, Subtask> subtasks;
-    private final HistoryManager historyManager;
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    private Integer nextId;
 
-    public InMemoryTaskManager(HistoryManager historyManager) {
+    public InMemoryTaskManager() {
         nextId = 1;
         tasks = new HashMap<>();
         epics = new HashMap<>();
         subtasks = new HashMap<>();
-        this.historyManager = historyManager;
     }
 
     @Override

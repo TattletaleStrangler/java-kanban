@@ -1,24 +1,25 @@
-package ru.yandex.practicum.tasktracker.managers.history_managers;
+package ru.yandex.practicum.tasktracker.managers.historymanagers;
 
 import ru.yandex.practicum.tasktracker.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private final static int MAX_SIZE = 10;
-    private final List<Task> history;
+    private final LinkedList<Task> history;
 
     public InMemoryHistoryManager() {
-        history = new ArrayList<>();
+        history = new LinkedList<>();
     }
 
     @Override
     public void add(Task task) {
-        history.add(0, task);
+        history.addFirst(task);
         if (history.size() > MAX_SIZE) {
-            history.remove(MAX_SIZE);
+            history.removeLast();
         }
     }
 

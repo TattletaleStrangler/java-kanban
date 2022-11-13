@@ -1,14 +1,14 @@
 package ru.yandex.practicum.tasktracker.managers;
 
-import ru.yandex.practicum.tasktracker.managers.history_managers.HistoryManager;
-import ru.yandex.practicum.tasktracker.managers.history_managers.InMemoryHistoryManager;
-import ru.yandex.practicum.tasktracker.managers.task_managers.InMemoryTaskManager;
-import ru.yandex.practicum.tasktracker.managers.task_managers.TaskManager;
+import ru.yandex.practicum.tasktracker.managers.historymanagers.HistoryManager;
+import ru.yandex.practicum.tasktracker.managers.historymanagers.InMemoryHistoryManager;
+import ru.yandex.practicum.tasktracker.managers.taskmanagers.InMemoryTaskManager;
+import ru.yandex.practicum.tasktracker.managers.taskmanagers.TaskManager;
 
 public class Managers {
 
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager(getDefaultHistory());
+        return new InMemoryTaskManager();
     }
 
     public static HistoryManager getDefaultHistory() {

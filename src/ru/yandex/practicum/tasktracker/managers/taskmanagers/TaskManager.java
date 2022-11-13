@@ -1,4 +1,4 @@
-package ru.yandex.practicum.tasktracker.managers.task_managers;
+package ru.yandex.practicum.tasktracker.managers.taskmanagers;
 
 import ru.yandex.practicum.tasktracker.tasks.Epic;
 import ru.yandex.practicum.tasktracker.tasks.Subtask;
