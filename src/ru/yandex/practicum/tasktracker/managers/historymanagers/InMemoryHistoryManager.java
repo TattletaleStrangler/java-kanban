@@ -5,22 +5,28 @@ import ru.yandex.practicum.tasktracker.tasks.Task;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final Map<Integer, Node> history;
+    private final Map<Integer, Node> nodeMap = new HashMap<>();
     private Node tail;
 
     public InMemoryHistoryManager() {
-        history = new HashMap<>();
     }
 
     @Override
     public void add(Task task) {
+        if (task == null) {
+            return;
+        }
+
+        Integer id = task.getId();
+        removeNode(id);
         linkLast(task);
+        nodeMap.put(task.getId(), tail);
     }
 
     @Override
     public void remove(int id) {
-        Node node = history.remove(id);
-        if (node != null) removeNode(node);
+        removeNode(id);
+        nodeMap.remove(id);
     }
 
     @Override
@@ -42,10 +48,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void linkLast(Task task) {
-        Node oldNode = history.get(task.getId());
-
-        if (oldNode != null) removeNode(oldNode);
-
         Node newNode = new Node(tail, task, null);
 
         if (tail != null) {
@@ -53,8 +55,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         tail = newNode;
-
-        history.put(task.getId(), newNode);
     }
 
     private List<Task> getTasks() {
@@ -69,7 +69,13 @@ public class InMemoryHistoryManager implements HistoryManager {
         return tasks;
     }
 
-    private void removeNode(Node node) {
+    private void removeNode(int id) {
+        Node node = nodeMap.get(id);
+
+        if (node == null) {
+            return;
+        }
+
         Node prev = node.prev;
         Node next = node.next;
 

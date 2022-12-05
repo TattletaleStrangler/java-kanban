@@ -5,12 +5,12 @@ import ru.yandex.practicum.tasktracker.managers.taskmanagers.TaskManager;
 import ru.yandex.practicum.tasktracker.tasks.Epic;
 import ru.yandex.practicum.tasktracker.tasks.Subtask;
 import ru.yandex.practicum.tasktracker.tasks.Task;
+import ru.yandex.practicum.tasktracker.tasks.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-// TODO проверка при вызове, удалении несуществующего таска!!!
 
     public static void main(String[] args) {
         Task task1 = new Task("Таск 1", "Описание таска 1");
@@ -62,7 +62,7 @@ public class Main {
         }
 
         System.out.println();
-
+/*
         System.out.println("удаление задачи с id = 1");
         manager.deleteTaskById(1);
         tasks = manager.getHistory();
@@ -86,5 +86,26 @@ public class Main {
         manager.getEpicById(3);
         manager.deleteEpicById(3);
         manager.deleteTaskById(15);
+*/
+        System.out.println("Удаление обычных задач с id 1, 2");
+        manager.deleteTasks();
+        tasks = manager.getHistory();
+
+        for (Task task : tasks) {
+            System.out.print(task.getId());
+        }
+
+        System.out.println();
+
+        System.out.println("Удаление эпиков с id 6, 7, соответственно и подзадач c id 3, 4, 5");
+        manager.deleteEpics();
+        tasks = manager.getHistory();
+
+        for (Task task : tasks) {
+            System.out.print(task.getId());
+        }
+
+        System.out.println();
+
     }
 }
