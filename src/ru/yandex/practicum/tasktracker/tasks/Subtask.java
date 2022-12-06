@@ -5,8 +5,14 @@ import java.util.Objects;
 public class Subtask extends Task {
     private Integer epicId;
 
-    public Subtask(String name, String description) {
-        super(name, description);
+    public Subtask(String name, String description, int epicId) {
+        super(name, description, TaskStatus.NEW);
+        this.epicId = epicId;
+    }
+
+    public Subtask(String name, String description, int epicId, TaskStatus status) {
+        super(name, description, status);
+        this.epicId = epicId;
     }
 
     public Integer getEpicId() {
