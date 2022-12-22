@@ -7,6 +7,11 @@ import java.util.Objects;
 public class Epic extends Task {
     private List<Integer> subtasksId;
 
+    public Epic(int id, String name, String description, TaskStatus status) {
+        super(id, name, description, status);
+        subtasksId = new ArrayList<>();
+    }
+
     public Epic(String name, String description) {
         super(name, description, TaskStatus.NEW);
         subtasksId = new ArrayList<>();
@@ -36,12 +41,11 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "ru.yandex.practicum.tasktracker.java.tasks.Epic{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                ", subtasks=" + subtasksId +
-                '}';
+        return "" + id +
+                "," + TaskType.EPIC +
+                "," + name +
+                "," + status +
+                "," + description +
+                ",";
     }
 }

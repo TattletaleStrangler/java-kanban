@@ -5,6 +5,11 @@ import java.util.Objects;
 public class Subtask extends Task {
     private Integer epicId;
 
+    public Subtask(int id, String name, String description, int epicId, TaskStatus status) {
+        super(id, name, description, status);
+        this.epicId = epicId;
+    }
+
     public Subtask(String name, String description, int epicId) {
         super(name, description, TaskStatus.NEW);
         this.epicId = epicId;
@@ -39,12 +44,11 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "ru.yandex.practicum.tasktracker.java.tasks.Subtask{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                ", epicId=" + epicId +
-                '}';
+        return "" + id +
+                "," + TaskType.SUBTASK +
+                "," + name +
+                "," + status +
+                "," + description +
+                "," + epicId;
     }
 }

@@ -68,19 +68,19 @@ public class Main {
 
         System.out.println();
 
-        System.out.println("удаление эпика с id = 3 с тремя подзадачами с id = 5, 6, 7");
-        manager.deleteEpicById(3);
-        tasks = manager.getHistory();
+//        System.out.println("удаление эпика с id = 3 с тремя подзадачами с id = 5, 6, 7");
+ //       manager.deleteEpicById(3);
+ //       tasks = manager.getHistory();
 
-        for (Task task : tasks) {
-            System.out.print(task.getId());
-        }
+//        for (Task task : tasks) {
+//            System.out.print(task.getId());
+//        }
 
-        System.out.println();
+//        System.out.println();
 
-        manager.getEpicById(3);
-        manager.deleteEpicById(3);
-        manager.deleteTaskById(15);
+//        manager.getEpicById(3);
+//        manager.deleteEpicById(3);
+//        manager.deleteTaskById(15);
 
 /*
         System.out.println("Удаление обычных задач с id 1, 2");

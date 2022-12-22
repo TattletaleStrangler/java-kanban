@@ -8,15 +8,20 @@ public class Task {
     protected String description;
     protected TaskStatus status;
 
-    public Task(String name, String description, TaskStatus status) {
+    public Task(int id, String name, String description, TaskStatus status) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
     }
 
+    public Task(String name, String description, TaskStatus status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+    }
+
     public Task(String name, String description) {
-        this.id = id;
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
@@ -70,11 +75,11 @@ public class Task {
 
     @Override
     public String toString() {
-        return "ru.yandex.practicum.tasktracker.java.tasks.Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                '}';
+        return "" + id +
+                "," + TaskType.TASK +
+                "," + name +
+                "," + status +
+                "," + description +
+                ",";
     }
 }
