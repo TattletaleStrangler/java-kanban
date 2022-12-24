@@ -7,76 +7,13 @@ import ru.yandex.practicum.tasktracker.managers.historymanagers.HistoryManager;
 import ru.yandex.practicum.tasktracker.tasks.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-
-    public static FileBackedTasksManager loadFromFile(File file) {
-        FileBackedTasksManager manager = new FileBackedTasksManager(file, true);
-        return manager;
-    }
-
-    private static String historyToString(HistoryManager manager) {
-        List<Task> tasks = manager.getHistory();
-        StringBuilder builder = new StringBuilder();
-
-        for (int i = 0; i < tasks.size(); i++) {
-            builder.append(tasks.get(i).getId());
-            if (i != tasks.size() - 1) {
-                builder.append(",");
-            }
-        }
-
-        return builder.toString();
-    }
-
-    private static List<Integer> historyFromString(String value) throws IOException {
-        try {
-            List<Integer> history = new ArrayList<>();
-            String[] tasksId = value.split(",");
-
-            for (String id : tasksId) {
-                history.add(Integer.parseInt(id));
-            }
-
-            return history;
-        } catch (NumberFormatException e) {
-            String message = e.getMessage();
-            String causeOfProblem = message.substring(message.lastIndexOf(":") + 2);
-            throw new IOException("ошибка преобразования id " + causeOfProblem + " в строке '" + value + "'");
-        }
-    }
 
     private final File backupFile;
 
     private final String title = "id,type,name,status,description,epic";
-
-    public static void main(String[] args) {
-        TaskManager manager = loadFromFile(new File(System.getProperty("user.home") + "\\backup.csv"));
-        Task task2 = new Task("Таск 2", "Описание таска 2");
-        manager.addNewTask(task2);
-        Epic epic2 = new Epic("Эпик 2", "Описание эпика 2");
-        manager.addNewEpic(epic2);
-        Subtask subtask2 = new Subtask("Подзадача 2 Эпика 1", "Описание подзадачи 2 эпика 1", epic2.getId());
-        Subtask subtask3 = new Subtask("Подзадача 3 Эпика 1", "Описание подзадачи 3 эпика 1", epic2.getId(), TaskStatus.IN_PROGRESS);
-        manager.addNewSubtask(subtask2);
-        manager.addNewSubtask(subtask3);
-
-        manager.getTaskById(4);
-        manager.getSubtaskById(6);
-        manager.getEpicById(5);
-        manager.getSubtaskById(7);
-
-        //повторяющиеся:
-
-        manager.getTaskById(4);
-        manager.getEpicById(5);
-
-        manager.deleteTaskById(4);
-        manager.deleteEpicById(5);
-    }
 
     public FileBackedTasksManager(File file, Boolean restore) {
         backupFile = file;
@@ -84,6 +21,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         if (restore) {
             restore();
         }
+    }
+
+    public static FileBackedTasksManager loadFromFile(File file) {
+        FileBackedTasksManager manager = new FileBackedTasksManager(file, true);
+        return manager;
     }
 
     @Override
@@ -202,6 +144,42 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return super.getSubtasksByEpic(epic);
     }
 
+    private static String historyToString(HistoryManager manager) {
+        List<Task> tasks = manager.getHistory();
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < tasks.size(); i++) {
+            builder.append(tasks.get(i).getId());
+            if (i != tasks.size() - 1) {
+                builder.append(",");
+            }
+        }
+
+        return builder.toString();
+    }
+
+    private static List<Integer> historyFromString(String value) throws IOException {
+        try {
+            List<Integer> history = new ArrayList<>();
+
+            if (value == null) {
+                return history;
+            }
+
+            String[] tasksId = value.split(",");
+
+            for (String id : tasksId) {
+                history.add(Integer.parseInt(id));
+            }
+
+            return history;
+        } catch (NumberFormatException e) {
+            String message = e.getMessage();
+            String causeOfProblem = message.substring(message.lastIndexOf(":") + 2);
+            throw new IOException("ошибка преобразования id " + causeOfProblem + " в строке '" + value + "'");
+        }
+    }
+
     private Task fromString(String value) throws TaskReadException {
         try {
             String[] taskData = value.split(",");
@@ -309,13 +287,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             List<Integer> idHistory = historyFromString(history);
             Collections.reverse(idHistory);
 
+            Map<Integer, Task> allTasks = new HashMap<>();
+            allTasks.putAll(tasks);
+            allTasks.putAll(epics);
+            allTasks.putAll(subtasks);
+
             for (Integer id : idHistory) {
-                if (tasks.containsKey(id)) {
+                if (allTasks.containsKey(id)) {
                     historyManager.add(tasks.get(id));
-                } else if (epics.containsKey(id)) {
-                    historyManager.add(epics.get(id));
-                } else if (subtasks.containsKey(id)) {
-                    historyManager.add(subtasks.get(id));
                 } else {
                     throw new IOException("история содержит несуществующую задачу с id = " + id);
                 }
