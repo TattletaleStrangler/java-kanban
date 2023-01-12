@@ -7,6 +7,8 @@ import ru.yandex.practicum.tasktracker.managers.historymanagers.HistoryManager;
 import ru.yandex.practicum.tasktracker.tasks.*;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
@@ -21,6 +23,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         if (restore) {
             restore();
         }
+
+        save();
     }
 
     public static FileBackedTasksManager loadFromFile(File file) {
@@ -182,33 +186,52 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private Task fromString(String value) throws TaskReadException {
         try {
-            String[] taskData = value.split(",");
+            String[] taskData = value.split(",", -1);
             int id = Integer.parseInt(taskData[0]);
             TaskType type = TaskType.valueOf(taskData[1]);
             String name = taskData[2];
             TaskStatus status = TaskStatus.valueOf(taskData[3]);
             String description = taskData[4];
-            int epicId = 0;
 
-            if (taskData.length == 6) {
-                epicId = Integer.parseInt(taskData[5]);
+            LocalDateTime startTime = null;
+            if (taskData[5].length() != 0) {
+                startTime = LocalDateTime.parse(taskData[5], Task.DATE_TIME_FORMATTER);
             }
 
+            Duration duration = Duration.ZERO;
+            if (taskData[6].length() != 0) {
+                duration = Duration.parse(taskData[6]);
+            }
+
+            LocalDateTime endTime;
+            int epicId;
             Task result;
 
             switch (type) {
                 case TASK:
                     result = new Task(id, name, description, status);
                     break;
+
                 case EPIC:
-                    result = new Epic(id, name, description, status);
+                    Epic epic = new Epic(id, name, description, status);
+                    if (taskData[7].length() != 0) {
+                        endTime = LocalDateTime.parse(taskData[7], Task.DATE_TIME_FORMATTER);
+                        epic.setEndTime(endTime);
+                    }
+                    result = epic;
                     break;
+
                 case SUBTASK:
+                    epicId = Integer.parseInt(taskData[7]);
                     result = new Subtask(id, name, description, epicId, status);
                     break;
+
                 default:
-                    result = null;
+                    throw new TaskReadException("Работа с типом задач " + type + " не поддерживается.");
             }
+
+            result.setStartTime(startTime);
+            result.setDuration(duration);
 
             return result;
         } catch (NumberFormatException e) {
@@ -300,8 +323,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 }
             }
 
+            restoreSubtasksListOfEpics();
         } catch (IOException | TaskReadException e) {
             throw new ManagerRestoreException("Ошибка восстановления из файла: " + e.getMessage());
+        }
+    }
+
+    private void restoreSubtasksListOfEpics() {
+        for (Subtask subtask : subtasks.values()) {
+            epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
         }
     }
 }

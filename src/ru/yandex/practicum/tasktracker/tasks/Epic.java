@@ -1,10 +1,14 @@
 package ru.yandex.practicum.tasktracker.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class Epic extends Task {
+    protected LocalDateTime endTime;
     private List<Integer> subtasksId;
 
     public Epic(int id, String name, String description, TaskStatus status) {
@@ -19,6 +23,15 @@ public class Epic extends Task {
 
     public List<Integer> getSubtasksId() {
         return subtasksId;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public void addSubtask(Integer subtaskId) {
@@ -41,11 +54,29 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "" + id +
+        String result = "" + id +
                 "," + TaskType.EPIC +
                 "," + name +
                 "," + status +
                 "," + description +
                 ",";
+
+        if (startTime != null) {
+            result += startTime.format(DATE_TIME_FORMATTER) + ",";
+        } else {
+            result += ",";
+        }
+
+        if (duration != null && !duration.equals(Duration.ZERO)) {
+            result += duration + ",";
+        } else {
+            result += ",";
+        }
+
+        if (endTime != null) {
+            result += endTime.format(DATE_TIME_FORMATTER);
+        }
+
+        return result;
     }
 }

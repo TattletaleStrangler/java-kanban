@@ -1,12 +1,18 @@
 package ru.yandex.practicum.tasktracker.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
     protected Integer id;
     protected String name;
     protected String description;
     protected TaskStatus status;
+    protected Duration duration = Duration.ZERO;
+    protected LocalDateTime startTime;
 
     public Task(int id, String name, String description, TaskStatus status) {
         this.id = id;
@@ -59,6 +65,30 @@ public class Task {
         this.status = status;
     }
 
+    public LocalDateTime getEndTime() {
+        if (startTime == null) {
+            return null;
+        }
+
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -75,11 +105,25 @@ public class Task {
 
     @Override
     public String toString() {
-        return "" + id +
+        String result = "" + id +
                 "," + TaskType.TASK +
                 "," + name +
                 "," + status +
                 "," + description +
                 ",";
+
+        if (startTime != null) {
+            result += startTime.format(DATE_TIME_FORMATTER) + ",";
+        } else {
+            result += ",";
+        }
+
+        if (duration != null && !duration.equals(Duration.ZERO)) {
+            result += duration + ",";
+        } else {
+            result += ",";
+        }
+
+        return result;
     }
 }

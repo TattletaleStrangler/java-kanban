@@ -1,5 +1,6 @@
 package ru.yandex.practicum.tasktracker.tasks;
 
+import java.time.Duration;
 import java.util.Objects;
 
 public class Subtask extends Task {
@@ -44,11 +45,27 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "" + id +
+        String result = "" + id +
                 "," + TaskType.SUBTASK +
                 "," + name +
                 "," + status +
                 "," + description +
-                "," + epicId;
+                ",";
+
+        if (startTime != null) {
+            result += startTime.format(DATE_TIME_FORMATTER) + ",";
+        } else {
+            result += ",";
+        }
+
+        if (duration != null && !duration.equals(Duration.ZERO)) {
+            result += duration + ",";
+        } else {
+            result += ",";
+        }
+
+        result += epicId;
+
+        return result;
     }
 }
