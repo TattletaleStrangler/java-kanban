@@ -50,13 +50,8 @@ public class Subtask extends Task {
                 "," + name +
                 "," + status +
                 "," + description +
+                "," + epicId +
                 ",";
-
-        if (startTime != null) {
-            result += startTime.format(DATE_TIME_FORMATTER) + ",";
-        } else {
-            result += ",";
-        }
 
         if (duration != null && !duration.equals(Duration.ZERO)) {
             result += duration + ",";
@@ -64,7 +59,9 @@ public class Subtask extends Task {
             result += ",";
         }
 
-        result += epicId;
+        if (startTime != null) {
+            result += startTime.format(DATE_TIME_FORMATTER);
+        }
 
         return result;
     }

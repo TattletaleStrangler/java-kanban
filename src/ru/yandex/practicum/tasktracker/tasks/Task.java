@@ -110,18 +110,16 @@ public class Task {
                 "," + name +
                 "," + status +
                 "," + description +
-                ",";
-
-        if (startTime != null) {
-            result += startTime.format(DATE_TIME_FORMATTER) + ",";
-        } else {
-            result += ",";
-        }
+                ",,";
 
         if (duration != null && !duration.equals(Duration.ZERO)) {
             result += duration + ",";
         } else {
             result += ",";
+        }
+
+        if (startTime != null) {
+            result += startTime.format(DATE_TIME_FORMATTER);
         }
 
         return result;

@@ -59,13 +59,7 @@ public class Epic extends Task {
                 "," + name +
                 "," + status +
                 "," + description +
-                ",";
-
-        if (startTime != null) {
-            result += startTime.format(DATE_TIME_FORMATTER) + ",";
-        } else {
-            result += ",";
-        }
+                ",,";
 
         if (duration != null && !duration.equals(Duration.ZERO)) {
             result += duration + ",";
@@ -73,8 +67,8 @@ public class Epic extends Task {
             result += ",";
         }
 
-        if (endTime != null) {
-            result += endTime.format(DATE_TIME_FORMATTER);
+        if (startTime != null) {
+            result += startTime.format(DATE_TIME_FORMATTER);
         }
 
         return result;

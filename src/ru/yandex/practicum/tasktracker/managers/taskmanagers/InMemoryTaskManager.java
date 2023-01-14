@@ -8,15 +8,18 @@ import ru.yandex.practicum.tasktracker.tasks.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class InMemoryTaskManager implements TaskManager {
+
     protected final Map<Integer, Task> tasks;
     protected final Map<Integer, Epic> epics;
     protected final Map<Integer, Subtask> subtasks;
     protected final TreeSet<Task> priorityOrderTasks;
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected final Map<LocalDateTime, Boolean> controlIntervals = new HashMap<>(COUNT_CONTROL_INTERVAL_IN_YEAR);
     protected Integer nextId;
+    private static final int CONTROL_INTERVAL_IN_MINUTES = 15;
+    private static final int COUNT_CONTROL_INTERVAL_IN_YEAR = 365 * 24 * 60 / CONTROL_INTERVAL_IN_MINUTES;
 
     public InMemoryTaskManager() {
         nextId = 1;
@@ -30,6 +33,7 @@ public class InMemoryTaskManager implements TaskManager {
 
             return task1.getId().compareTo(task2.getId());
         });
+        fillTimeIntervals();
     }
 
     public List<Task> getPrioritizedTasks() {
@@ -55,21 +59,25 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpics() {
         removeTasksFromHistory(epics);
         epics.clear();
-        deleteSubtasks();
+
+        removeTasksFromHistory(subtasks);
+        subtasks.values().forEach(priorityOrderTasks::remove);
+        subtasks.values().forEach(this::vacateTimeIntervalsFromTask);
+        subtasks.clear();
     }
 
     @Override
     public void deleteSubtasks() {
         removeTasksFromHistory(subtasks);
 
-        subtasks.values().stream().forEach(priorityOrderTasks::remove);
-
+        subtasks.values().forEach(priorityOrderTasks::remove);
+        subtasks.values().forEach(this::vacateTimeIntervalsFromTask);
         subtasks.clear();
 
         for (Epic epic : epics.values()) {
             List<Integer> subtasksOfEpic = epic.getSubtasksId();
             subtasksOfEpic.clear();
-            updateEpicStatusAndTimes(epic.getId());
+            updateEpic(epic.getId());
         }
     }
 
@@ -77,8 +85,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTasks() {
         removeTasksFromHistory(tasks);
 
-        tasks.values().stream().forEach(priorityOrderTasks::remove);
-
+        tasks.values().forEach(priorityOrderTasks::remove);
+        tasks.values().forEach(this::vacateTimeIntervalsFromTask);
         tasks.clear();
     }
 
@@ -128,6 +136,7 @@ public class InMemoryTaskManager implements TaskManager {
         task.setId(generateId());
         tasks.put(task.getId(), task);
         priorityOrderTasks.add(task);
+        occupyTimeIntervalsByTask(task);
         return task.getId();
     }
 
@@ -139,7 +148,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         epic.setId(generateId());
         epics.put(epic.getId(), epic);
-        updateEpicStatusAndTimes(epic.getId());
+        updateEpic(epic.getId());
         return epic.getId();
     }
 
@@ -161,8 +170,9 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(subtaskId);
         epic.addSubtask(subtaskId);
         subtasks.put(subtaskId, subtask);
-        updateEpicStatusAndTimes(epic.getId());
+        updateEpic(epic.getId());
         priorityOrderTasks.add(subtask);
+        occupyTimeIntervalsByTask(subtask);
         return subtaskId;
     }
 
@@ -173,7 +183,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         epics.put(epic.getId(), epic);
-        updateEpicStatusAndTimes(epic.getId());
+        updateEpic(epic.getId());
     }
 
     @Override
@@ -182,9 +192,20 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        validateTaskTime(task);
-        tasks.put(task.getId(), task);
+        Task oldTask = tasks.get(task.getId());
+        vacateTimeIntervalsFromTask(oldTask);
+
+        try {
+            validateTaskTime(task);
+        } catch (TaskTimeException e) {
+            occupyTimeIntervalsByTask(oldTask);
+            throw new TaskTimeException(e.getMessage());
+        }
+
+        priorityOrderTasks.remove(oldTask);
         priorityOrderTasks.add(task);
+        occupyTimeIntervalsByTask(task);
+        tasks.put(task.getId(), task);
     }
 
     @Override
@@ -193,10 +214,22 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
+        Subtask oldSubtask = subtasks.get(subtask.getId());
+        vacateTimeIntervalsFromTask(subtask);
         validateTaskTime(subtask);
-        subtasks.put(subtask.getId(), subtask);
-        updateEpicStatusAndTimes(subtask.getEpicId());
+
+        try {
+            validateTaskTime(subtask);
+        } catch (TaskTimeException e) {
+            occupyTimeIntervalsByTask(oldSubtask);
+            throw new TaskTimeException(e.getMessage());
+        }
+
+        priorityOrderTasks.remove(oldSubtask);
         priorityOrderTasks.add(subtask);
+        occupyTimeIntervalsByTask(subtask);
+        subtasks.put(subtask.getId(), subtask);
+        updateEpic(subtask.getEpicId());
     }
 
     @Override
@@ -210,8 +243,11 @@ public class InMemoryTaskManager implements TaskManager {
         List<Integer> subtasksOfEpic = epic.getSubtasksId();
 
         for (Integer subtaskId : subtasksOfEpic) {
+            Subtask subtask = subtasks.get(subtaskId);
+            priorityOrderTasks.remove(subtask);
             subtasks.remove(subtaskId);
             historyManager.remove(subtaskId);
+            vacateTimeIntervalsFromTask(subtask);
         }
 
         historyManager.remove(id);
@@ -227,9 +263,10 @@ public class InMemoryTaskManager implements TaskManager {
 
         Epic epic = epics.get(subtask.getEpicId());
         epic.getSubtasksId().remove(subtask.getId());
-        updateEpicStatusAndTimes(epic.getId());
+        updateEpic(epic.getId());
         historyManager.remove(id);
         priorityOrderTasks.remove(subtask);
+        vacateTimeIntervalsFromTask(subtask);
     }
 
     @Override
@@ -242,6 +279,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         historyManager.remove(id);
         priorityOrderTasks.remove(task);
+        vacateTimeIntervalsFromTask(task);
     }
 
     @Override
@@ -263,13 +301,13 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private void updateEpicStatusAndTimes(Integer epicId) {
-        updateEpicStatus(epicId);
-        calcEpicTimes(epicId);
+    protected void updateEpic (Integer epicId) {
+        Epic epic = epics.get(epicId);
+        updateEpicStatus(epic);
+        calcEpicTimes(epic);
     }
 
-    private void updateEpicStatus(Integer epicId) {
-        Epic epic = epics.get(epicId);
+    private void updateEpicStatus(Epic epic) {
         List<Integer> subtasksOfEpic = epic.getSubtasksId();
         boolean statusIsDone = true;
         boolean statusIsNew = true;
@@ -297,8 +335,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    private void calcEpicTimes(Integer epicId) {
-        Epic epic = epics.get(epicId);
+    private void calcEpicTimes(Epic epic) {
         List<Integer> subtasksOfEpic = epic.getSubtasksId();
 
         if (subtasksOfEpic.size() == 0) {
@@ -345,17 +382,69 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void validateTaskTime(Task task) {
-        for (Task orderTask : priorityOrderTasks) {
-            if (orderTask.getStartTime() == null || task.getStartTime() == null) {
-                continue;
+        if (task.getStartTime() == null) {
+            return;
+        }
+
+        LocalDateTime startTime = getNearestQuarterOfHour(task.getStartTime());
+        LocalDateTime endTime = getNearestQuarterOfHour(task.getEndTime());
+        LocalDateTime timeForCheck = startTime;
+
+        while (!timeForCheck.isAfter(endTime)) {
+            if (!controlIntervals.get(timeForCheck)) {
+                throw new TaskTimeException("Задача пересекается с уже существующей.");
             }
 
-            if (task.getEndTime().isBefore(orderTask.getStartTime())
-                    || task.getStartTime().isAfter(orderTask.getEndTime())) {
-                continue;
-            } else {
-                throw new TaskTimeException("Задача пересекается с существующей: '" + orderTask + "'");
-            }
+            timeForCheck = timeForCheck.plusMinutes(CONTROL_INTERVAL_IN_MINUTES);
+        }
+
+        LocalDateTime timeForOccupy = startTime;
+        occupyTimeIntervals(timeForOccupy, endTime);
+    }
+
+    private void fillTimeIntervals() {
+        LocalDateTime currentTime = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endTime = currentTime.plusYears(1);
+        vacateTimeIntervals(currentTime, endTime);
+    }
+
+    private void occupyTimeIntervalsByTask(Task task) {
+        if (task.getStartTime() == null) {
+            return;
+        }
+
+        LocalDateTime startTime = getNearestQuarterOfHour(task.getStartTime());
+        LocalDateTime endTime = getNearestQuarterOfHour(task.getEndTime());
+        occupyTimeIntervals(startTime, endTime);
+    }
+
+    private void vacateTimeIntervalsFromTask(Task task) {
+        if (task.getStartTime() == null) {
+            return;
+        }
+
+        LocalDateTime startTime = getNearestQuarterOfHour(task.getStartTime());
+        LocalDateTime endTime = getNearestQuarterOfHour(task.getEndTime());
+        vacateTimeIntervals(startTime, endTime);
+    }
+
+    private LocalDateTime getNearestQuarterOfHour(LocalDateTime dateTime) {
+        int fullFifteenMinutesStart = dateTime.getMinute() / CONTROL_INTERVAL_IN_MINUTES;
+        return dateTime.withMinute(fullFifteenMinutesStart * CONTROL_INTERVAL_IN_MINUTES)
+                .withSecond(0).withNano(0);
+    }
+
+    private void vacateTimeIntervals(LocalDateTime startTime, LocalDateTime endTime) {
+        while (!startTime.isAfter(endTime)) {
+            controlIntervals.put(startTime, true);
+            startTime = startTime.plusMinutes(CONTROL_INTERVAL_IN_MINUTES);
+        }
+    }
+
+    private void occupyTimeIntervals(LocalDateTime startTime, LocalDateTime endTime) {
+        while (!startTime.isAfter(endTime)) {
+            controlIntervals.put(startTime, false);
+            startTime = startTime.plusMinutes(CONTROL_INTERVAL_IN_MINUTES);
         }
     }
 }

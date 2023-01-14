@@ -1,8 +1,9 @@
-package ru.yandex.practicum.tasktracker.managers.taskmanagers;
+package ru.yandex.practicum.tasktracker.manager;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import ru.yandex.practicum.tasktracker.ecxeptions.TaskTimeException;
+import ru.yandex.practicum.tasktracker.managers.taskmanagers.TaskManager;
 import ru.yandex.practicum.tasktracker.tasks.Epic;
 import ru.yandex.practicum.tasktracker.tasks.Subtask;
 import ru.yandex.practicum.tasktracker.tasks.Task;
@@ -868,19 +869,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
         LocalDateTime task1StartTime = LocalDateTime.now();
         task1.setStartTime(task1StartTime);
         int task1Id = taskManager.addNewTask(task1);
-        Task savedTask1 = taskManager.getTaskById(task1Id);
 
         Task task2 = new Task("Task2", "Task2 description", NEW);
         LocalDateTime task2StartTime = task1StartTime;
         task2.setStartTime(task2StartTime);
-
 
         final TaskTimeException exception = assertThrows(
                 TaskTimeException.class,
                 () -> taskManager.addNewTask(task2)
         );
 
-        String expectedMessage = "Задача пересекается с существующей: '" + savedTask1 + "'";
+        String expectedMessage = "Задача пересекается с уже существующей.";
         assertEquals(expectedMessage, exception.getMessage(), "Исключение не выброшено.");
     }
 }

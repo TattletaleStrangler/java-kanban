@@ -1,9 +1,14 @@
-package ru.yandex.practicum.tasktracker.tasks;
+package ru.yandex.practicum.tasktracker.task;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.tasktracker.managers.taskmanagers.InMemoryTaskManager;
 import ru.yandex.practicum.tasktracker.managers.taskmanagers.TaskManager;
+import ru.yandex.practicum.tasktracker.tasks.Epic;
+import ru.yandex.practicum.tasktracker.tasks.Subtask;
+import ru.yandex.practicum.tasktracker.tasks.Task;
+import ru.yandex.practicum.tasktracker.tasks.TaskStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -28,7 +33,7 @@ class EpicTest {
         final int epicId = taskManager.addNewEpic(epic);
         final Epic savedEpic = taskManager.getEpicById(epicId);
         assertNotNull(savedEpic, "Задача не найдена.");
-        assertEquals(TaskStatus.NEW, savedEpic.getStatus(), "Статусы не совпадают.");
+        Assertions.assertEquals(TaskStatus.NEW, savedEpic.getStatus(), "Статусы не совпадают.");
     }
 
     @Test
@@ -198,8 +203,7 @@ class EpicTest {
         String epicStartTime = subtaskStartTime1.format(Task.DATE_TIME_FORMATTER);
         String epicEndTime = subtask2.getEndTime().format(Task.DATE_TIME_FORMATTER);
 
-        final String expected = "1,EPIC,Epic,DONE,Epic description," + epicStartTime + "," + epicDuration + ","
-                + epicEndTime;
+        final String expected = "1,EPIC,Epic,DONE,Epic description,," + epicDuration + "," + epicStartTime;
         assertEquals(expected, receivedEpic.toString(), "Метод toString() работает неверно.");
     }
 }

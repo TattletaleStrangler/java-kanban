@@ -27,7 +27,7 @@ public class Main {
         manager.addNewEpic(epic2);
 
         Subtask subtask2 = new Subtask("Подзадача 1 Эпика 2", "Описание подзадачи 1 эпика 2", epic2.getId());
-        subtask2.setStartTime(LocalDateTime.now());
+        subtask2.setStartTime(LocalDateTime.now().plusHours(1));
         subtask2.setDuration(Duration.ofHours(4));
 
         Subtask subtask3 = new Subtask("Подзадача 2 Эпика 2", "Описание подзадачи 2 эпика 2", epic2.getId(), TaskStatus.IN_PROGRESS);

@@ -1,7 +1,8 @@
-package ru.yandex.practicum.tasktracker.managers.taskmanagers;
+package ru.yandex.practicum.tasktracker.manager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.tasktracker.managers.taskmanagers.FileBackedTasksManager;
 import ru.yandex.practicum.tasktracker.tasks.Epic;
 import ru.yandex.practicum.tasktracker.tasks.Subtask;
 import ru.yandex.practicum.tasktracker.tasks.Task;
@@ -21,6 +22,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     void beforeEach() {
         taskManager = new FileBackedTasksManager(backup, false);
     }
+
 
     @Test
     void shouldReturnEmptyTasksList() {
@@ -61,7 +63,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     void shouldRestoreTasksAndHistory() {
         Task task = new Task("Test getHistory task", "Test getHistory task description", NEW);
         task.setStartTime(LocalDateTime.now());
-        task.setDuration(Duration.ofHours(5));
+        task.setDuration(Duration.ofMinutes(40));
         final int taskId = taskManager.addNewTask(task);
 
         Epic epic = new Epic("Test getHistory epic", "Test getHistory epic description");
@@ -69,14 +71,20 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 
         Subtask subtask1 = new Subtask("Test getHistory subtask 1", "Test getHistory subtask 1 description"
                 , epicId, NEW);
+        subtask1.setStartTime(LocalDateTime.now().plusHours(1));
+        subtask1.setDuration(Duration.ofMinutes(40));
         final int subtask1Id = taskManager.addNewSubtask(subtask1);
 
         Subtask subtask2 = new Subtask("Test getHistory subtask 2", "Test getHistory subtask 2 description"
                 , epicId, NEW);
+        subtask2.setStartTime(LocalDateTime.now().plusHours(2));
+        subtask2.setDuration(Duration.ofMinutes(40));
         final int subtask2Id = taskManager.addNewSubtask(subtask2);
 
         Subtask subtask3 = new Subtask("Test getHistory subtask 3", "Test getHistory subtask 3 description"
                 , epicId, NEW);
+        subtask3.setStartTime(LocalDateTime.now().plusHours(3));
+        subtask3.setDuration(Duration.ofMinutes(50));
         final int subtask3Id = taskManager.addNewSubtask(subtask3);
 
         taskManager = FileBackedTasksManager.loadFromFile(backup);
@@ -84,17 +92,19 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 
         final Epic savedEpic = taskManager.getEpicById(epicId);
         assertNotNull(savedEpic, "Эпик не найден.");
+        assertEquals(epic, savedEpic, "Эпики не совпадают.");
 
-        List<Integer> expectedSubtasks = List.of(subtask3Id, subtask2Id, subtask1Id);
-        List<Integer> subtasks = savedEpic.getSubtasksId();
+        List<Subtask> expectedSubtasks = List.of(subtask3, subtask2, subtask1);
+        List<Subtask> subtasks = taskManager.getSubtasks();
         assertNotNull(subtasks, "Список подзадач пуст.");
         assertEquals(expectedSubtasks.size(), subtasks.size(), "Неверное число подзадач в списке.");
-        for (Integer id : expectedSubtasks) {
-            assertTrue(subtasks.contains(id), "Списки подзадач не совпадают.");
+        for (Subtask subtask : expectedSubtasks) {
+            assertTrue(subtasks.contains(subtask), "Списки подзадач не совпадают.");
         }
 
         final Task savedTask = taskManager.getTaskById(taskId);
         assertNotNull(savedTask, "Задача не найдена.");
+        assertEquals(task, savedTask, "Задачи не совпадают.");
 
         final Subtask savedSubtask = taskManager.getSubtaskById(subtask1Id);
         assertNotNull(savedSubtask, "Подзадача не найдена.");
@@ -103,5 +113,10 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         List<Task> history = taskManager.getHistory();
         assertNotNull(history, "История не возвращается.");
         assertIterableEquals(expectedHistory, history, "История не соответстует ожидаемой");
+
+        List<Task> expectedPrioritizedTasks = List.of(task, subtask1, subtask2, subtask3);
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        assertNotNull(prioritizedTasks, "Список приоритетных задач не возвращается.");
+        assertIterableEquals(expectedPrioritizedTasks, prioritizedTasks, "Списки приоритетных задач не совпадают.");
     }
 }

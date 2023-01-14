@@ -15,7 +15,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private final File backupFile;
 
-    private final String title = "id,type,name,status,description,epic";
+    private final String title = "id,type,name,status,description,epic,duration,startTime,";
 
     public FileBackedTasksManager(File file, Boolean restore) {
         backupFile = file;
@@ -193,18 +193,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             TaskStatus status = TaskStatus.valueOf(taskData[3]);
             String description = taskData[4];
 
-            LocalDateTime startTime = null;
-            if (taskData[5].length() != 0) {
-                startTime = LocalDateTime.parse(taskData[5], Task.DATE_TIME_FORMATTER);
-            }
-
             Duration duration = Duration.ZERO;
             if (taskData[6].length() != 0) {
                 duration = Duration.parse(taskData[6]);
             }
 
+            LocalDateTime startTime = null;
+            if (taskData[7].length() != 0) {
+                startTime = LocalDateTime.parse(taskData[7], Task.DATE_TIME_FORMATTER);
+            }
+
             LocalDateTime endTime;
-            int epicId;
             Task result;
 
             switch (type) {
@@ -222,8 +221,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     break;
 
                 case SUBTASK:
-                    epicId = Integer.parseInt(taskData[7]);
-                    result = new Subtask(id, name, description, epicId, status);
+                    int idEpic = Integer.parseInt(taskData[5]);
+                    result = new Subtask(id, name, description, idEpic, status);
                     break;
 
                 default:
@@ -292,10 +291,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 int id = task.getId();
 
                 if (task instanceof Subtask) {
+                    priorityOrderTasks.add(task);
                     subtasks.put(id, (Subtask) task);
                 } else if (task instanceof Epic) {
                     epics.put(id, (Epic) task);
                 } else {
+                    priorityOrderTasks.add(task);
                     tasks.put(id, task);
                 }
 
@@ -307,31 +308,42 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             nextId = maxId + 1;
 
             String history = reader.readLine();
-            List<Integer> idHistory = historyFromString(history);
-            Collections.reverse(idHistory);
 
-            Map<Integer, Task> allTasks = new HashMap<>();
-            allTasks.putAll(tasks);
-            allTasks.putAll(epics);
-            allTasks.putAll(subtasks);
-
-            for (Integer id : idHistory) {
-                if (allTasks.containsKey(id)) {
-                    historyManager.add(tasks.get(id));
-                } else {
-                    throw new IOException("история содержит несуществующую задачу с id = " + id);
-                }
-            }
-
+            historyRestore(history);
             restoreSubtasksListOfEpics();
+            updateEpics();
         } catch (IOException | TaskReadException e) {
             throw new ManagerRestoreException("Ошибка восстановления из файла: " + e.getMessage());
+        }
+    }
+
+    private void historyRestore(String history) throws IOException {
+        List<Integer> idHistory = historyFromString(history);
+        Collections.reverse(idHistory);
+
+        Map<Integer, Task> allTasks = new HashMap<>();
+        allTasks.putAll(tasks);
+        allTasks.putAll(epics);
+        allTasks.putAll(subtasks);
+
+        for (Integer id : idHistory) {
+            if (allTasks.containsKey(id)) {
+                historyManager.add(tasks.get(id));
+            } else {
+                throw new IOException("история содержит несуществующую задачу с id = " + id);
+            }
         }
     }
 
     private void restoreSubtasksListOfEpics() {
         for (Subtask subtask : subtasks.values()) {
             epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
+        }
+    }
+
+    private void updateEpics() {
+        for(Epic epic : epics.values()) {
+            updateEpic(epic.getId());
         }
     }
 }

@@ -1,12 +1,12 @@
-package ru.yandex.practicum.tasktracker.managers.historymanagers;
+package ru.yandex.practicum.tasktracker.historymanager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.tasktracker.managers.Managers;
+import ru.yandex.practicum.tasktracker.managers.historymanagers.HistoryManager;
 import ru.yandex.practicum.tasktracker.tasks.Task;
 import ru.yandex.practicum.tasktracker.tasks.TaskStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,6 +1,9 @@
-package ru.yandex.practicum.tasktracker.tasks;
+package ru.yandex.practicum.tasktracker.task;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.tasktracker.tasks.Subtask;
+import ru.yandex.practicum.tasktracker.tasks.Task;
+import ru.yandex.practicum.tasktracker.tasks.TaskStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -74,8 +77,8 @@ class SubtaskTest {
         Duration duration = Duration.ofHours(13);
         subtask.setDuration(duration);
 
-        final String expected = "2,SUBTASK,Subtask,IN_PROGRESS,Subtask description,"
-                + startTime.format(Task.DATE_TIME_FORMATTER) + "," + duration + ",1";
+        final String expected = "2,SUBTASK,Subtask,IN_PROGRESS,Subtask description," + epicId + ","
+                + duration + "," + startTime.format(Task.DATE_TIME_FORMATTER);
         assertEquals(expected, subtask.toString(), "Метод toString() работает неверно.");
     }
 }
