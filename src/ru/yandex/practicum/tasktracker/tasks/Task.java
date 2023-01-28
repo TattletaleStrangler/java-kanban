@@ -14,11 +14,20 @@ public class Task {
     protected Duration duration = Duration.ZERO;
     protected LocalDateTime startTime;
 
-    public Task(int id, String name, String description, TaskStatus status) {
+    public Task(int id, String name, String description, TaskStatus status, Duration duration, LocalDateTime startTime) {
+        this(name, description, status, duration, startTime);
         this.id = id;
-        this.name = name;
-        this.description = description;
-        this.status = status;
+    }
+
+    public Task(int id, String name, String description, TaskStatus status) {
+        this(name, description, status);
+        this.id = id;
+    }
+
+    public Task(String name, String description, TaskStatus status, Duration duration, LocalDateTime startTime) {
+        this(name, description, status);
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public Task(String name, String description, TaskStatus status) {

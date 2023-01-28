@@ -1,22 +1,26 @@
 package ru.yandex.practicum.tasktracker;
 
-import ru.yandex.practicum.tasktracker.managers.taskmanagers.InMemoryTaskManager;
+import ru.yandex.practicum.tasktracker.managers.taskmanagers.HttpTaskManager;
 import ru.yandex.practicum.tasktracker.managers.taskmanagers.TaskManager;
 import ru.yandex.practicum.tasktracker.tasks.Epic;
 import ru.yandex.practicum.tasktracker.tasks.Subtask;
 import ru.yandex.practicum.tasktracker.tasks.Task;
 import ru.yandex.practicum.tasktracker.tasks.TaskStatus;
+import ru.yandex.practicum.tasktracker.web.server.KVServer;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws IOException {
+        KVServer server = new KVServer();
+        server.start();
+        TaskManager manager = new HttpTaskManager("http://localhost:8078");
 //        TaskManager manager = FileBackedTasksManager.loadFromFile(new File(System.getProperty("user.home") + "\\backup.csv"));
-        TaskManager manager = new InMemoryTaskManager();
+//        TaskManager manager = new InMemoryTaskManager();
 //        TaskManager manager = new FileBackedTasksManager(new File(System.getProperty("user.home") + "\\backup.csv"), false);
         Task task2 = new Task("Таск 2", "Описание таска 2");
         task2.setStartTime(LocalDateTime.now());
@@ -49,7 +53,9 @@ public class Main {
         manager.getTaskById(1);
         manager.getEpicById(2);
 
-//        manager.deleteTaskById(1);
-//        manager.deleteEpicById(2);
+        manager.deleteTaskById(1);
+        manager.deleteEpicById(2);
+        manager.deleteSubtaskById(3);
+
     }
 }

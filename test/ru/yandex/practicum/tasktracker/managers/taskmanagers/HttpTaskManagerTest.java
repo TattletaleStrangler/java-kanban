@@ -1,13 +1,14 @@
-package ru.yandex.practicum.tasktracker.manager;
+package ru.yandex.practicum.tasktracker.managers.taskmanagers;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.tasktracker.managers.taskmanagers.FileBackedTasksManager;
 import ru.yandex.practicum.tasktracker.tasks.Epic;
 import ru.yandex.practicum.tasktracker.tasks.Subtask;
 import ru.yandex.practicum.tasktracker.tasks.Task;
+import ru.yandex.practicum.tasktracker.web.server.KVServer;
 
-import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,14 +16,21 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static ru.yandex.practicum.tasktracker.tasks.TaskStatus.NEW;
 
-class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
-    private static final File backup = new File(System.getProperty("user.home") + "\\backup.csv");
+class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
+
+    public KVServer server;
 
     @BeforeEach
-    void beforeEach() {
-        taskManager = new FileBackedTasksManager(backup, false);
+    void beforeEach() throws IOException {
+        server = new KVServer();
+        server.start();
+        taskManager = new HttpTaskManager("http://localhost:8078");
     }
 
+    @AfterEach
+    void afterEach() {
+        server.stop();
+    }
 
     @Test
     void shouldReturnEmptyTasksList() {
@@ -87,7 +95,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         subtask3.setDuration(Duration.ofMinutes(50));
         final int subtask3Id = taskManager.addNewSubtask(subtask3);
 
-        taskManager = FileBackedTasksManager.loadFromFile(backup);
+        taskManager = new HttpTaskManager("http://localhost:8078", true);
         assertNotNull(taskManager, "Менеджер не создан.");
 
         final Epic savedEpic = taskManager.getEpicById(epicId);
@@ -119,4 +127,5 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         assertNotNull(prioritizedTasks, "Список приоритетных задач не возвращается.");
         assertIterableEquals(expectedPrioritizedTasks, prioritizedTasks, "Списки приоритетных задач не совпадают.");
     }
+
 }

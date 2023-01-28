@@ -26,13 +26,10 @@ public class InMemoryTaskManager implements TaskManager {
         tasks = new HashMap<>();
         epics = new HashMap<>();
         subtasks = new HashMap<>();
-        priorityOrderTasks = new TreeSet<>((task1, task2) -> {
-            if (task1.getStartTime() != null && task2.getEndTime() != null) {
-                return task1.getStartTime().compareTo(task2.getStartTime());
-            }
-
-            return task1.getId().compareTo(task2.getId());
-        });
+        priorityOrderTasks = new TreeSet<>(
+                Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(Task::getId)
+        );
         fillTimeIntervals();
     }
 

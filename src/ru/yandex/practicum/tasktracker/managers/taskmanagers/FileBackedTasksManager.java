@@ -24,7 +24,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             restore();
         }
 
-        save();
+//        save();
     }
 
     public static FileBackedTasksManager loadFromFile(File file) {
@@ -208,11 +208,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
             switch (type) {
                 case TASK:
-                    result = new Task(id, name, description, status);
+                    result = new Task(id, name, description, status, duration, startTime);
                     break;
 
                 case EPIC:
-                    Epic epic = new Epic(id, name, description, status);
+                    Epic epic = new Epic(id, name, description, status, duration, startTime);
                     if (taskData[7].length() != 0) {
                         endTime = LocalDateTime.parse(taskData[7], Task.DATE_TIME_FORMATTER);
                         epic.setEndTime(endTime);
@@ -222,15 +222,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
                 case SUBTASK:
                     int idEpic = Integer.parseInt(taskData[5]);
-                    result = new Subtask(id, name, description, idEpic, status);
+                    result = new Subtask(id, name, description, idEpic, status, duration, startTime);
                     break;
 
                 default:
                     throw new TaskReadException("Работа с типом задач " + type + " не поддерживается.");
             }
-
-            result.setStartTime(startTime);
-            result.setDuration(duration);
 
             return result;
         } catch (NumberFormatException e) {
@@ -249,7 +246,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private void save() {
+    protected void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(backupFile))) {
             writer.write(title + "\n");
 
@@ -270,7 +267,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private void restore() {
+    protected void restore() {
         try (BufferedReader reader = new BufferedReader(new FileReader(backupFile))) {
             int maxId = 0;
             reader.readLine();
@@ -317,7 +314,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private void historyRestore(String history) throws IOException {
+    protected void historyRestore(String history) throws IOException {
         List<Integer> idHistory = historyFromString(history);
         Collections.reverse(idHistory);
 
@@ -335,13 +332,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private void restoreSubtasksListOfEpics() {
+    protected void restoreSubtasksListOfEpics() {
         for (Subtask subtask : subtasks.values()) {
             epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
         }
     }
 
-    private void updateEpics() {
+    protected void updateEpics() {
         for(Epic epic : epics.values()) {
             updateEpic(epic.getId());
         }

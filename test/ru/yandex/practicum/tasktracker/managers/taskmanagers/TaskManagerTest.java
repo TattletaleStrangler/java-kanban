@@ -1,4 +1,4 @@
-package ru.yandex.practicum.tasktracker.manager;
+package ru.yandex.practicum.tasktracker.managers.taskmanagers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
