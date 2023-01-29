@@ -1,5 +1,9 @@
 package ru.yandex.practicum.tasktracker.web.client;
 
+import ru.yandex.practicum.tasktracker.ecxeptions.ManagerCreateException;
+import ru.yandex.practicum.tasktracker.ecxeptions.ManagerRestoreException;
+import ru.yandex.practicum.tasktracker.ecxeptions.ManagerSaveException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -40,10 +44,14 @@ public class KVTaskClient {
             }
 
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса возникла ошибка. "
-                    + "Проверьте, пожалуйста, URL-адрес и повторите попытку.");
+            String message = "Во время выполнения запроса возникла ошибка. "
+                    + "Проверьте, пожалуйста, URL-адрес и повторите попытку.";
+            System.out.println(message);
+            throw new ManagerSaveException(message);
         } catch (IllegalArgumentException e) {
-            System.out.println("Введённый вами адрес не соответствует формату URL. Попробуйте, пожалуйста, снова.");
+            String message = "Введённый вами адрес не соответствует формату URL. Попробуйте, пожалуйста, снова.";
+            System.out.println(message);
+            throw new ManagerSaveException(message);
         }
     }
 
@@ -72,13 +80,15 @@ public class KVTaskClient {
             return response.body();
 
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса возникла ошибка. "
-                    + "Проверьте, пожалуйста, URL-адрес и повторите попытку.");
+            String message = "Во время выполнения запроса возникла ошибка. "
+                    + "Проверьте, пожалуйста, URL-адрес и повторите попытку.";
+            System.out.println(message);
+            throw new ManagerRestoreException(message);
         } catch (IllegalArgumentException e) {
-            System.out.println("Введённый вами адрес не соответствует формату URL. Попробуйте, пожалуйста, снова.");
+            String message = "Введённый вами адрес не соответствует формату URL. Попробуйте, пожалуйста, снова.";
+            System.out.println(message);
+            throw new ManagerRestoreException(message);
         }
-
-        return "";
     }
 
     private void register() {
@@ -104,10 +114,14 @@ public class KVTaskClient {
             }
 
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса возникла ошибка. "
-                    + "Проверьте, пожалуйста, URL-адрес и повторите попытку.");
+            String message = "Во время выполнения запроса возникла ошибка. "
+                    + "Проверьте, пожалуйста, URL-адрес и повторите попытку.";
+            System.out.println(message);
+            throw new ManagerCreateException(message);
         } catch (IllegalArgumentException e) {
-            System.out.println("Введённый вами адрес не соответствует формату URL. Попробуйте, пожалуйста, снова.");
+            String message = "Введённый вами адрес не соответствует формату URL. Попробуйте, пожалуйста, снова.";
+            System.out.println(message);
+            throw new ManagerCreateException(message);
         }
     }
 }

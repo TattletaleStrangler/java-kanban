@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.yandex.practicum.tasktracker.tasks.TaskStatus.NEW;
+import static java.net.HttpURLConnection.*;
 
 class HttpTaskServerTest {
     public final String serverUrl = "http://localhost:8080";
@@ -64,7 +65,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int expectedId = 1;
         task.setId(expectedId);
@@ -73,7 +74,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + expectedId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -87,14 +88,14 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Ответ сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Ответ сервера не соответствует ожидаемому.");
 
         String expected = "Задача с id = " + wrongId + " не найдена";
 
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера не соответствует ожидаемому.");
     }
 
@@ -116,7 +117,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/task/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Списки задач не совпадают.");
     }
 
@@ -127,7 +128,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/task/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -146,7 +147,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/task/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -159,7 +160,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = get(uri);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -176,7 +177,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + expectedId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -189,7 +190,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера отличается от ожидаемого.");
     }
 
@@ -209,7 +210,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера отличается от ожидаемого.");
     }
 
@@ -234,7 +235,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> responseForCheck = get(uri);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -259,7 +260,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> responseForCheck = get(uri);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -270,7 +271,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int id = 1;
         task.setId(id);
@@ -280,12 +281,12 @@ class HttpTaskServerTest {
 
         HttpResponse<String> newResponse = post(newTask, uri);
         int newStatus = newResponse.statusCode();
-        assertEquals(200, newStatus, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, newStatus, "Код ответа сервера не соответствует ожидаемому.");
 
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + id);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(newTask, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -296,7 +297,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int wrongId = 100;
         task.setId(wrongId);
@@ -306,13 +307,13 @@ class HttpTaskServerTest {
 
         HttpResponse<String> newResponse = post(newTask, uri);
         int newStatus = newResponse.statusCode();
-        assertEquals(200, newStatus, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, newStatus, "Код ответа сервера не соответствует ожидаемому.");
 
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
         String expected = "Задача с id = " + wrongId + " не найдена";
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Возвращен не пустой массив.");
     }
 
@@ -323,7 +324,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int expectedId = 1;
         epic.setId(expectedId);
@@ -332,7 +333,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/epic/?id=" + expectedId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -346,14 +347,14 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Ответ сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Ответ сервера не соответствует ожидаемому.");
 
         String expected = "Задача с id = " + wrongId + " не найдена";
 
         URI url = URI.create(serverUrl + "/tasks/epic/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера не соответствует ожидаемому.");
     }
 
@@ -375,7 +376,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/epic/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Списки задач не совпадают.");
     }
 
@@ -386,7 +387,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/epic/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -405,7 +406,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/epic/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -418,7 +419,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = get(uri);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -435,7 +436,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/epic/?id=" + expectedId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -448,7 +449,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/epic/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера отличается от ожидаемого.");
     }
 
@@ -467,7 +468,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/epic/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера отличается от ожидаемого.");
     }
 
@@ -492,7 +493,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> responseForCheck = get(uri);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -517,7 +518,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> responseForCheck = get(uri);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -528,7 +529,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int id = 1;
         epic.setId(id);
@@ -538,12 +539,12 @@ class HttpTaskServerTest {
 
         HttpResponse<String> newResponse = post(newTask, uri);
         int newStatus = newResponse.statusCode();
-        assertEquals(200, newStatus, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, newStatus, "Код ответа сервера не соответствует ожидаемому.");
 
         URI url = URI.create(serverUrl + "/tasks/epic/?id=" + id);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(newTask, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -554,7 +555,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int wrongId = 100;
         epic.setId(wrongId);
@@ -564,13 +565,13 @@ class HttpTaskServerTest {
 
         HttpResponse<String> newResponse = post(newTask, uri);
         int newStatus = newResponse.statusCode();
-        assertEquals(200, newStatus, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, newStatus, "Код ответа сервера не соответствует ожидаемому.");
 
         URI url = URI.create(serverUrl + "/tasks/epic/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
         String expected = "Задача с id = " + wrongId + " не найдена";
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Возвращен не пустой массив.");
     }
 
@@ -580,14 +581,14 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(1);
         String json = gson.toJson(subtask1);
         HttpResponse<String> responseSubtask = post(json, uriSubtask);
         int statusSubtask = responseSubtask.statusCode();
-        assertEquals(200, statusSubtask, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask, "Код ответа сервера не соответствует ожидаемому.");
 
         int expectedId = 2;
         subtask1.setId(expectedId);
@@ -596,7 +597,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/subtask/?id=" + expectedId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -606,7 +607,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         final int wrongId = 10;
         subtask1.setId(wrongId);
@@ -617,14 +618,14 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Ответ сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Ответ сервера не соответствует ожидаемому.");
 
         String expected = "Задача с id = " + wrongId + " не найдена";
 
         URI url = URI.create(serverUrl + "/tasks/subtask/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера не соответствует ожидаемому.");
     }
 
@@ -634,7 +635,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uri = URI.create(serverUrl + "/tasks/subtask");
 
@@ -656,7 +657,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/subtask/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Списки задач не совпадают.");
     }
 
@@ -667,7 +668,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/subtask/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -677,7 +678,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         subtask1.setEpicId(1);
         subtask2.setEpicId(1);
@@ -696,7 +697,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/subtask/");
         HttpResponse<String> response = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -709,7 +710,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> response = get(uri);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(expected, response.body(), "Возвращен не пустой массив.");
     }
 
@@ -719,7 +720,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         subtask1.setEpicId(1);
 
@@ -734,7 +735,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/subtask/?id=" + expectedId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -747,7 +748,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/subtask/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера отличается от ожидаемого.");
     }
 
@@ -757,7 +758,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         subtask1.setEpicId(1);
         subtask2.setEpicId(1);
@@ -776,7 +777,7 @@ class HttpTaskServerTest {
         URI url = URI.create(serverUrl + "/tasks/subtask/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Ответ сервера отличается от ожидаемого.");
     }
 
@@ -786,7 +787,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         final URI uri = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(1);
@@ -810,7 +811,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> responseForCheck = get(uri);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -820,7 +821,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         final URI uri = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(1);
@@ -844,7 +845,7 @@ class HttpTaskServerTest {
 
         HttpResponse<String> responseForCheck = get(uri);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -854,7 +855,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uri = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(1);
@@ -862,7 +863,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int id = 2;
         subtask1.setId(id);
@@ -872,12 +873,12 @@ class HttpTaskServerTest {
 
         HttpResponse<String> newResponse = post(newTask, uri);
         int newStatus = newResponse.statusCode();
-        assertEquals(200, newStatus, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, newStatus, "Код ответа сервера не соответствует ожидаемому.");
 
         URI url = URI.create(serverUrl + "/tasks/subtask/?id=" + id);
         HttpResponse<String> responseForCheck = get(url);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HTTP_OK, response.statusCode());
         assertEquals(newTask, responseForCheck.body(), "Задачи не совпадают.");
     }
 
@@ -887,7 +888,7 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uri = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(1);
@@ -895,7 +896,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = post(json, uri);
 
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         int wrongId = 100;
         subtask1.setId(wrongId);
@@ -905,13 +906,13 @@ class HttpTaskServerTest {
 
         HttpResponse<String> newResponse = post(newTask, uri);
         int newStatus = newResponse.statusCode();
-        assertEquals(200, newStatus, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, newStatus, "Код ответа сервера не соответствует ожидаемому.");
 
         URI url = URI.create(serverUrl + "/tasks/task/?id=" + wrongId);
         HttpResponse<String> responseForCheck = get(url);
 
         String expected = "Задача с id = " + wrongId + " не найдена";
-        assertEquals(404, responseForCheck.statusCode());
+        assertEquals(HTTP_NOT_FOUND, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Возвращен не пустой массив.");
     }
 
@@ -921,27 +922,27 @@ class HttpTaskServerTest {
         String json = gson.toJson(task);
         HttpResponse<String> response = post(json, uri);
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriEpic = URI.create(serverUrl + "/tasks/epic");
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask1 = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(2);
         String jsonSubtask1 = gson.toJson(subtask1);
         HttpResponse<String> responseSubtask1 = post(jsonSubtask1, uriSubtask1);
         int statusSubtask1 = responseSubtask1.statusCode();
-        assertEquals(200, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask2 = URI.create(serverUrl + "/tasks/subtask");
         subtask2.setEpicId(2);
         String jsonSubtask2 = gson.toJson(subtask2);
         HttpResponse<String> responseSubtask2 = post(jsonSubtask2, uriSubtask2);
         int statusSubtask2 = responseSubtask2.statusCode();
-        assertEquals(200, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
 
         task.setId(1);
         epic.setId(2);
@@ -954,7 +955,7 @@ class HttpTaskServerTest {
         URI uriPrioritized = URI.create(serverUrl + "/tasks/");
         HttpResponse<String> responseForCheck = get(uriPrioritized);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -966,13 +967,13 @@ class HttpTaskServerTest {
         String json = gson.toJson(task);
         HttpResponse<String> response = post(json, uri);
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriEpic = URI.create(serverUrl + "/tasks/epic");
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask1 = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(2);
@@ -981,7 +982,7 @@ class HttpTaskServerTest {
         String jsonSubtask1 = gson.toJson(subtask1);
         HttpResponse<String> responseSubtask1 = post(jsonSubtask1, uriSubtask1);
         int statusSubtask1 = responseSubtask1.statusCode();
-        assertEquals(200, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask2 = URI.create(serverUrl + "/tasks/subtask");
         subtask2.setEpicId(2);
@@ -990,7 +991,7 @@ class HttpTaskServerTest {
         String jsonSubtask2 = gson.toJson(subtask2);
         HttpResponse<String> responseSubtask2 = post(jsonSubtask2, uriSubtask2);
         int statusSubtask2 = responseSubtask2.statusCode();
-        assertEquals(200, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
 
         task.setId(1);
         epic.setId(2);
@@ -1003,7 +1004,7 @@ class HttpTaskServerTest {
         URI uriPrioritized = URI.create(serverUrl + "/tasks/");
         HttpResponse<String> responseForCheck = get(uriPrioritized);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -1014,7 +1015,7 @@ class HttpTaskServerTest {
         URI uriPrioritized = URI.create(serverUrl + "/tasks/");
         HttpResponse<String> responseForCheck = get(uriPrioritized);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -1024,28 +1025,28 @@ class HttpTaskServerTest {
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask1 = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(1);
         String jsonSubtask1 = gson.toJson(subtask1);
         HttpResponse<String> responseSubtask1 = post(jsonSubtask1, uriSubtask1);
         int statusSubtask1 = responseSubtask1.statusCode();
-        assertEquals(200, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask2 = URI.create(serverUrl + "/tasks/subtask");
         subtask2.setEpicId(1);
         String jsonSubtask2 = gson.toJson(subtask2);
         HttpResponse<String> responseSubtask2 = post(jsonSubtask2, uriSubtask2);
         int statusSubtask2 = responseSubtask2.statusCode();
-        assertEquals(200, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask3 = URI.create(serverUrl + "/tasks/subtask");
         subtask3.setEpicId(1);
         String jsonSubtask3 = gson.toJson(subtask3);
         HttpResponse<String> responseSubtask3 = post(jsonSubtask3, uriSubtask3);
         int statusSubtask3 = responseSubtask3.statusCode();
-        assertEquals(200, statusSubtask3, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask3, "Код ответа сервера не соответствует ожидаемому.");
 
         subtask1.setId(2);
         subtask2.setId(3);
@@ -1057,7 +1058,7 @@ class HttpTaskServerTest {
         URI uri = URI.create(serverUrl + "/tasks/subtask/epic/?id=1");
         HttpResponse<String> responseForCheck = get(uri);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -1067,27 +1068,27 @@ class HttpTaskServerTest {
         String json = gson.toJson(task);
         HttpResponse<String> response = post(json, uri);
         int status = response.statusCode();
-        assertEquals(200, status, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, status, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriEpic = URI.create(serverUrl + "/tasks/epic");
         String jsonEpic = gson.toJson(epic);
         HttpResponse<String> responseEpic = post(jsonEpic, uriEpic);
         int statusEpic = responseEpic.statusCode();
-        assertEquals(200, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusEpic, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask1 = URI.create(serverUrl + "/tasks/subtask");
         subtask1.setEpicId(2);
         String jsonSubtask1 = gson.toJson(subtask1);
         HttpResponse<String> responseSubtask1 = post(jsonSubtask1, uriSubtask1);
         int statusSubtask1 = responseSubtask1.statusCode();
-        assertEquals(200, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask1, "Код ответа сервера не соответствует ожидаемому.");
 
         URI uriSubtask2 = URI.create(serverUrl + "/tasks/subtask");
         subtask2.setEpicId(2);
         String jsonSubtask2 = gson.toJson(subtask2);
         HttpResponse<String> responseSubtask2 = post(jsonSubtask2, uriSubtask2);
         int statusSubtask2 = responseSubtask2.statusCode();
-        assertEquals(200, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
+        assertEquals(HTTP_OK, statusSubtask2, "Код ответа сервера не соответствует ожидаемому.");
 
         task.setId(1);
         epic.setId(2);
@@ -1107,7 +1108,7 @@ class HttpTaskServerTest {
         URI uriHistory = URI.create(serverUrl + "/tasks/history");
         HttpResponse<String> responseForCheck = get(uriHistory);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Списки задач не совпадают.");
     }
 
@@ -1118,7 +1119,7 @@ class HttpTaskServerTest {
         URI uriHistory = URI.create(serverUrl + "/tasks/history");
         HttpResponse<String> responseForCheck = get(uriHistory);
 
-        assertEquals(200, responseForCheck.statusCode());
+        assertEquals(HTTP_OK, responseForCheck.statusCode());
         assertEquals(expected, responseForCheck.body(), "Возвращен не пустой массив.");
     }
 

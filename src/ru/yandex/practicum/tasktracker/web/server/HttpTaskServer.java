@@ -21,6 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
+import static java.net.HttpURLConnection.*;
+
 public class HttpTaskServer {
     private static final int PORT = 8080;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
@@ -52,9 +54,9 @@ public class HttpTaskServer {
             if (uri.getPath().split("/").length == 2 && "GET".equals(exchange.getRequestMethod())) {
                 List<Task> tasks = manager.getPrioritizedTasks();
                 String response = gson.toJson(tasks);
-                writeResponse(exchange, response, 200);
+                writeResponse(exchange, response, HTTP_OK);
             } else {
-                writeResponse(exchange, "Такого эндпоинта не существует", 404);
+                writeResponse(exchange, "Такого эндпоинта не существует", HTTP_NOT_FOUND);
             }
         }
     }
@@ -69,13 +71,13 @@ public class HttpTaskServer {
                 case GET_HISTORY: {
                     List<Task> tasks = manager.getHistory();
                     String response = gson.toJson(tasks);
-                    writeResponse(exchange, response, 200);
+                    writeResponse(exchange, response, HTTP_OK);
                     break;
                 }
                 case UNKNOWN: {
                 }
                 default:
-                    writeResponse(exchange, "Такого эндпоинта не существует", 404);
+                    writeResponse(exchange, "Такого эндпоинта не существует", HTTP_NOT_FOUND);
             }
         }
     }
@@ -110,21 +112,21 @@ public class HttpTaskServer {
                 case UNKNOWN: {
                 }
                 default:
-                    writeResponse(exchange, "Такого эндпоинта не существует", 404);
+                    writeResponse(exchange, "Такого эндпоинта не существует", HTTP_NOT_FOUND);
             }
         }
 
         private void handleGetTasks(HttpExchange exchange) throws IOException {
             List<Task> tasks = manager.getTasks();
             String response = gson.toJson(tasks);
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
 
         private void handleGetTaskById(HttpExchange exchange) throws IOException {
             Optional<Integer> taskIdOpt = getTaskId(exchange);
 
             if (taskIdOpt.isEmpty()) {
-                writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+                writeResponse(exchange, "Некорректный идентификатор задачи", HTTP_BAD_REQUEST);
                 return;
             }
 
@@ -132,12 +134,12 @@ public class HttpTaskServer {
             Task task = manager.getTaskById(taskId);
 
             if (task == null) {
-                writeResponse(exchange, "Задача с id = " + taskId + " не найдена", 404);
+                writeResponse(exchange, "Задача с id = " + taskId + " не найдена", HTTP_NOT_FOUND);
                 return;
             }
 
             String response = gson.toJson(task);
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
 
         private void handleSaveTask(HttpExchange exchange) throws IOException {
@@ -146,7 +148,7 @@ public class HttpTaskServer {
 
                 if (body.length() == 0) {
                     String response = "Задача не была сохранена, так как тело запроса пустое";
-                    writeResponse(exchange, response, 400);
+                    writeResponse(exchange, response, HTTP_BAD_REQUEST);
                     return;
                 }
 
@@ -161,30 +163,30 @@ public class HttpTaskServer {
                     response = "Задача добавлена, id=" + task.getId();
                 }
 
-                writeResponse(exchange, response, 200);
+                writeResponse(exchange, response, HTTP_OK);
             } catch (JsonSyntaxException e) {
                 String response = "Задача не была сохранена, так как тело запроса не соответствует формату json";
-                writeResponse(exchange, response, 400);
+                writeResponse(exchange, response, HTTP_BAD_REQUEST);
             }
         }
 
         private void handleDeleteTasks(HttpExchange exchange) throws IOException {
             manager.deleteTasks();
-            writeResponse(exchange, "Задачи удалены", 200);
+            writeResponse(exchange, "Задачи удалены", HTTP_OK);
         }
 
         private void handleDeleteTaskById(HttpExchange exchange) throws IOException {
             Optional<Integer> taskIdOpt = getTaskId(exchange);
 
             if (taskIdOpt.isEmpty()) {
-                writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+                writeResponse(exchange, "Некорректный идентификатор задачи", HTTP_BAD_REQUEST);
                 return;
             }
 
             int taskId = taskIdOpt.get();
             manager.deleteTaskById(taskId);
             String response = "Задача с id = " + taskId + " удалена";
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
     }
 
@@ -222,21 +224,21 @@ public class HttpTaskServer {
                 case UNKNOWN: {
                 }
                 default:
-                    writeResponse(exchange, "Такого эндпоинта не существует", 404);
+                    writeResponse(exchange, "Такого эндпоинта не существует", HTTP_NOT_FOUND);
             }
         }
 
         private void handleGetTasks(HttpExchange exchange) throws IOException {
             List<Subtask> tasks = manager.getSubtasks();
             String response = gson.toJson(tasks);
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
 
         private void handleGetTaskById(HttpExchange exchange) throws IOException {
             Optional<Integer> taskIdOpt = getTaskId(exchange);
 
             if (taskIdOpt.isEmpty()) {
-                writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+                writeResponse(exchange, "Некорректный идентификатор задачи", HTTP_BAD_REQUEST);
                 return;
             }
 
@@ -244,12 +246,12 @@ public class HttpTaskServer {
             Subtask task = manager.getSubtaskById(taskId);
 
             if (task == null) {
-                writeResponse(exchange, "Задача с id = " + taskId + " не найдена", 404);
+                writeResponse(exchange, "Задача с id = " + taskId + " не найдена", HTTP_NOT_FOUND);
                 return;
             }
 
             String response = gson.toJson(task);
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
 
         private void handleSaveTask(HttpExchange exchange) throws IOException {
@@ -258,7 +260,7 @@ public class HttpTaskServer {
 
                 if (body.length() == 0) {
                     String response = "Задача не была сохранена, так как тело запроса пустое";
-                    writeResponse(exchange, response, 400);
+                    writeResponse(exchange, response, HTTP_BAD_REQUEST);
                     return;
                 }
 
@@ -273,37 +275,37 @@ public class HttpTaskServer {
                     response = "Задача добавлена, id = " + taskId;
                 }
 
-                writeResponse(exchange, response, 200);
+                writeResponse(exchange, response, HTTP_OK);
             } catch (JsonSyntaxException e) {
                 String response = "Задача не была сохранена, так как тело запроса не соответствует формату json";
-                writeResponse(exchange, response, 400);
+                writeResponse(exchange, response, HTTP_BAD_REQUEST);
             }
         }
 
         private void handleDeleteTasks(HttpExchange exchange) throws IOException {
             manager.deleteSubtasks();
-            writeResponse(exchange, "Задачи удалены", 200);
+            writeResponse(exchange, "Задачи удалены", HTTP_OK);
         }
 
         private void handleDeleteTaskById(HttpExchange exchange) throws IOException {
             Optional<Integer> taskIdOpt = getTaskId(exchange);
 
             if (taskIdOpt.isEmpty()) {
-                writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+                writeResponse(exchange, "Некорректный идентификатор задачи", HTTP_BAD_REQUEST);
                 return;
             }
 
             int taskId = taskIdOpt.get();
             manager.deleteSubtaskById(taskId);
             String response = "Задача с id = " + taskId + " удалена";
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
 
         private void handleGetSubtaskByEpicId(HttpExchange exchange) throws IOException {
             Optional<Integer> epicIdOpt = getTaskId(exchange);
 
             if (epicIdOpt.isEmpty()) {
-                writeResponse(exchange, "Некорректный идентификатор эпика", 400);
+                writeResponse(exchange, "Некорректный идентификатор эпика", HTTP_BAD_REQUEST);
                 return;
             }
 
@@ -311,13 +313,13 @@ public class HttpTaskServer {
             Epic epic = manager.getEpicById(epicId);
 
             if (epic == null) {
-                writeResponse(exchange, "Эпик с id = " + epicId + " не найден", 404);
+                writeResponse(exchange, "Эпик с id = " + epicId + " не найден", HTTP_NOT_FOUND);
                 return;
             }
 
             List<Subtask> subtasks = manager.getSubtasksByEpic(epic);
             String response = gson.toJson(subtasks);
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
     }
 
@@ -351,21 +353,21 @@ public class HttpTaskServer {
                 case UNKNOWN: {
                 }
                 default:
-                    writeResponse(exchange, "Такого эндпоинта не существует", 404);
+                    writeResponse(exchange, "Такого эндпоинта не существует", HTTP_NOT_FOUND);
             }
         }
 
         private void handleGetTasks(HttpExchange exchange) throws IOException {
             List<Epic> tasks = manager.getEpics();
             String response = gson.toJson(tasks);
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
 
         private void handleGetTaskById(HttpExchange exchange) throws IOException {
             Optional<Integer> taskIdOpt = getTaskId(exchange);
 
             if (taskIdOpt.isEmpty()) {
-                writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+                writeResponse(exchange, "Некорректный идентификатор задачи", HTTP_BAD_REQUEST);
                 return;
             }
 
@@ -373,12 +375,12 @@ public class HttpTaskServer {
             Epic task = manager.getEpicById(taskId);
 
             if (task == null) {
-                writeResponse(exchange, "Задача с id = " + taskId + " не найдена", 404);
+                writeResponse(exchange, "Задача с id = " + taskId + " не найдена", HTTP_NOT_FOUND);
                 return;
             }
 
             String response = gson.toJson(task);
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
 
         private void handleSaveTask(HttpExchange exchange) throws IOException {
@@ -387,7 +389,7 @@ public class HttpTaskServer {
 
                 if (body.length() == 0) {
                     String response = "Задача не была сохранена, так как тело запроса пустое";
-                    writeResponse(exchange, response, 400);
+                    writeResponse(exchange, response, HTTP_BAD_REQUEST);
                     return;
                 }
 
@@ -402,30 +404,30 @@ public class HttpTaskServer {
                     response = "Задача добавлена, id = " + taskId;
                 }
 
-                writeResponse(exchange, response, 200);
+                writeResponse(exchange, response, HTTP_OK);
             } catch (JsonSyntaxException e) {
                 String response = "Задача не была сохранена, так как тело запроса не соответствует формату json";
-                writeResponse(exchange, response, 400);
+                writeResponse(exchange, response, HTTP_BAD_REQUEST);
             }
         }
 
         private void handleDeleteTasks(HttpExchange exchange) throws IOException {
             manager.deleteEpics();
-            writeResponse(exchange, "Задачи удалены", 200);
+            writeResponse(exchange, "Задачи удалены", HTTP_OK);
         }
 
         private void handleDeleteTaskById(HttpExchange exchange) throws IOException {
             Optional<Integer> taskIdOpt = getTaskId(exchange);
 
             if (taskIdOpt.isEmpty()) {
-                writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+                writeResponse(exchange, "Некорректный идентификатор задачи", HTTP_BAD_REQUEST);
                 return;
             }
 
             int taskId = taskIdOpt.get();
             manager.deleteEpicById(taskId);
             String response = "Задача с id = " + taskId + " удалена";
-            writeResponse(exchange, response, 200);
+            writeResponse(exchange, response, HTTP_OK);
         }
     }
 
